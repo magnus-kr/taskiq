@@ -38,6 +38,12 @@ class SendTaskError(BrokerError):
     __template__ = "Cannot send task to the queue"
 
 
+class SkipSendError(TaskiqError):
+    """Raised by a pre_send middleware to drop a message before it is sent."""
+
+    __template__ = "Message send was skipped by a middleware"
+
+
 class SharedBrokerSendTaskError(SendTaskError):
     """Error when someone tries to send task with shared broker."""
 

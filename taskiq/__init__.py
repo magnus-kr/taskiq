@@ -21,6 +21,7 @@ from taskiq.exceptions import (
     ResultIsReadyError,
     SecurityError,
     SendTaskError,
+    SkipSendError,
     TaskiqError,
     TaskiqResultTimeoutError,
 )
@@ -57,6 +58,7 @@ __all__ = [
     "ScheduledTask",
     "SecurityError",
     "SendTaskError",
+    "SkipSendError",
     "SimpleRetryMiddleware",
     "SmartRetryMiddleware",
     "TaskiqDepends",

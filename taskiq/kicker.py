@@ -17,7 +17,7 @@ from pydantic import BaseModel
 
 from taskiq.abc.middleware import TaskiqMiddleware
 from taskiq.compat import model_dump
-from taskiq.exceptions import SendTaskError
+from taskiq.exceptions import SendTaskError, SkipSendError
 from taskiq.labels import prepare_label
 from taskiq.message import TaskiqMessage
 from taskiq.scheduler.created_schedule import CreatedSchedule
@@ -157,9 +157,16 @@ class AsyncKicker(Generic[_FuncParams, _ReturnType]):
             f"Kicking {self.task_name} with args={args} and kwargs={kwargs}.",
         )
         message = self._prepare_message(*args, **kwargs)
-        for middleware in self.broker.middlewares:
-            if middleware.__class__.pre_send != TaskiqMiddleware.pre_send:
-                message = await maybe_awaitable(middleware.pre_send(message))
+        try:
+            for middleware in self.broker.middlewares:
+                if middleware.__class__.pre_send != TaskiqMiddleware.pre_send:
+                    message = await maybe_awaitable(middleware.pre_send(message))
+        except SkipSendError:
+            logger.info(
+                f"Send of {self.task_name} (task_id={message.task_id}) "
+                "skipped by a pre_send middleware.",
+            )
+            return None
         try:
             await self.broker.kick(self.broker.formatter.dumps(message))
         except Exception as exc:
