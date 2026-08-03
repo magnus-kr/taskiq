@@ -107,6 +107,7 @@ omit = [
 
 [tool.hatch.version]
 source = "versioningit"
+default-version = "0.12.2"
 
 [tool.isort]
 profile = "black"
